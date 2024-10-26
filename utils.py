@@ -23,10 +23,18 @@ def allowed_file(filename):
 
 def upload_file_to_s3(file):
     if not allowed_file(file.filename):
-        raise ValueError("File type not allowed")
+        raise ValueError('File type not allowed')
     
     filename = secure_filename(file.filename)
-    unique_filename = f"{uuid.uuid4()}-{filename}"
+    unique_filename = f'{uuid.uuid4()}-{filename}'
+    
+    # Determine content type
+    content_type = {
+        'png': 'image/png',
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'gif': 'image/gif'
+    }.get(filename.rsplit('.', 1)[1].lower(), 'application/octet-stream')
     
     s3_client = get_s3_client()
     bucket_name = os.environ.get('AWS_BUCKET_NAME')
@@ -35,11 +43,14 @@ def upload_file_to_s3(file):
         s3_client.upload_fileobj(
             file,
             bucket_name,
-            unique_filename
+            unique_filename,
+            ExtraArgs={
+                'ContentType': content_type
+            }
         )
         
         # Generate the URL for the uploaded file
-        url = f"https://{bucket_name}.s3.amazonaws.com/{unique_filename}"
+        url = f'https://{bucket_name}.s3.amazonaws.com/{unique_filename}'
         return url, unique_filename
     except Exception as e:
-        raise Exception(f"Error uploading to S3: {str(e)}")
+        raise Exception(f'Error uploading to S3: {str(e)}')
