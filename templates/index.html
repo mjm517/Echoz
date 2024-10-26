@@ -34,6 +34,10 @@
     {% for memory in memories %}
     <div class="col-md-4 mb-4">
         <div class="card h-100">
+            {% if memory.image_url %}
+            <!-- Debug info -->
+            <div class="d-none">Image URL: {{ memory.image_url }}</div>
+            {% endif %}
             <img src="{{ memory.image_url }}" class="card-img-top" alt="{{ memory.title }}">
             <div class="card-body">
                 <h5 class="card-title">{{ memory.title }}</h5>
