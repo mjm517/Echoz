@@ -40,6 +40,7 @@ def upload_file_to_s3(file):
     bucket_name = os.environ.get('AWS_BUCKET_NAME')
     
     try:
+        # Only use required parameters without ACL
         s3_client.upload_fileobj(
             file,
             bucket_name,
@@ -51,7 +52,7 @@ def upload_file_to_s3(file):
         
         # Generate the URL for the uploaded file using region-specific format
         region = s3_client.meta.region_name
-        url = f'https://s3.{region}.amazonaws.com/{bucket_name}/{unique_filename}'
+        url = f'https://{bucket_name}.s3.{region}.amazonaws.com/{unique_filename}'
         return url, unique_filename
     except Exception as e:
         raise Exception(f'Error uploading to S3: {str(e)}')

@@ -14,6 +14,14 @@ logger = logging.getLogger(__name__)
 @app.route('/')
 def index():
     memories = Memory.query.order_by(Memory.created_at.desc()).all()
+    # Add debug logging
+    for memory in memories:
+        logger.info(f"Memory ID: {memory.id}")
+        logger.info(f"Title: {memory.title}")
+        logger.info(f"Description: {memory.description}")
+        logger.info(f"Image URL: {memory.image_url}")
+        logger.info(f"S3 Key: {memory.s3_key}")
+        logger.info("------------------------")
     return render_template('index.html', memories=memories)
 
 @app.route('/memory/<int:memory_id>')
