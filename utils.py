@@ -35,8 +35,7 @@ def upload_file_to_s3(file):
         s3_client.upload_fileobj(
             file,
             bucket_name,
-            unique_filename,
-            ExtraArgs={'ACL': 'public-read'}
+            unique_filename
         )
         
         # Generate the URL for the uploaded file
