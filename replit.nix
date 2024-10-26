@@ -1,7 +1,5 @@
 {pkgs}: {
   deps = [
-    pkgs.postgis
-    pkgs.geos
     pkgs.zlib
     pkgs.tk
     pkgs.tcl

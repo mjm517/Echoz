@@ -1,16 +1,7 @@
 import os
-import logging
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import text
-
-# Configure logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 class Base(DeclarativeBase):
     pass
@@ -26,18 +17,10 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_pre_ping": True,
 }
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
-app.debug = True  # Enable debug mode
 
 db.init_app(app)
 
 with app.app_context():
-    # Enable PostGIS
-    db.session.execute(text('CREATE EXTENSION IF NOT EXISTS postgis;'))
-    db.session.commit()
-    
-    # Drop all tables and recreate them
     import models
     import routes
-    
-    db.drop_all()
     db.create_all()
