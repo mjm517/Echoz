@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <img src="{{ memory.image_url }}" class="card-img-top" alt="{{ memory.title }}">
+            <div class="card-body">
+                <h1 class="card-title">{{ memory.title }}</h1>
+                <p class="card-text">{{ memory.description }}</p>
+                {% if memory.location %}
+                <p class="card-text"><small class="text-muted">📍 {{ memory.location }}</small></p>
+                {% endif %}
+                <p class="card-text"><small class="text-muted">Created on {{ memory.created_at.strftime('%B %d, %Y') }}</small></p>
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Memories</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Add New Memory</h5>
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="location" name="location">
+                    </div>
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Image</label>
+                        <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Memory</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" id="memoriesContainer">
+    {% for memory in memories %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <img src="{{ memory.image_url }}" class="card-img-top" alt="{{ memory.title }}">
+            <div class="card-body">
+                <h5 class="card-title">{{ memory.title }}</h5>
+                <p class="card-text">{{ memory.description[:100] }}{% if memory.description|length > 100 %}...{% endif %}</p>
+                {% if memory.location %}
+                <p class="card-text"><small class="text-muted">📍 {{ memory.location }}</small></p>
+                {% endif %}
+                <a href="{{ url_for('view_memory', memory_id=memory.id) }}" class="btn btn-secondary">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
