@@ -40,17 +40,17 @@ def upload_file_to_s3(file):
     bucket_name = os.environ.get('AWS_BUCKET_NAME')
     
     try:
+        # Upload file without ACL configuration
         s3_client.upload_fileobj(
             file,
             bucket_name,
             unique_filename,
-            ExtraArgs={
-                'ContentType': content_type
-            }
+            ExtraArgs={'ContentType': content_type}
         )
         
         # Generate a pre-signed URL that's valid for 7 days (604800 seconds)
-        url = s3_client.generate_presigned_url('get_object',
+        url = s3_client.generate_presigned_url(
+            'get_object',
             Params={
                 'Bucket': bucket_name,
                 'Key': unique_filename
