@@ -5,6 +5,8 @@ from models import Memory
 from utils import upload_file_to_s3
 from werkzeug.exceptions import RequestEntityTooLarge
 from sqlalchemy.exc import SQLAlchemyError
+from shapely.geometry import Point
+from geoalchemy2.shape import from_shape
 import traceback
 
 # Configure logging
@@ -14,20 +16,27 @@ logger = logging.getLogger(__name__)
 @app.route('/')
 def index():
     memories = Memory.query.order_by(Memory.created_at.desc()).all()
-    # Add debug logging
-    for memory in memories:
-        logger.info(f"Memory ID: {memory.id}")
-        logger.info(f"Title: {memory.title}")
-        logger.info(f"Description: {memory.description}")
-        logger.info(f"Image URL: {memory.image_url}")
-        logger.info(f"S3 Key: {memory.s3_key}")
-        logger.info("------------------------")
     return render_template('index.html', memories=memories)
 
 @app.route('/memory/<int:memory_id>')
 def view_memory(memory_id):
     memory = Memory.query.get_or_404(memory_id)
     return render_template('view_memory.html', memory=memory)
+
+@app.route('/search/location', methods=['GET'])
+def search_by_location():
+    try:
+        lat = float(request.args.get('lat'))
+        lng = float(request.args.get('lng'))
+        radius = float(request.args.get('radius', 10))  # Default 10km radius
+        
+        memories = Memory.search_by_location(lat, lng, radius)
+        return jsonify([memory.to_dict() for memory in memories])
+    except (ValueError, TypeError) as e:
+        return jsonify({'error': 'Invalid coordinates or radius'}), 400
+    except Exception as e:
+        logger.error(f"Search error: {str(e)}")
+        return jsonify({'error': 'Search failed'}), 500
 
 @app.route('/upload', methods=['POST'])
 def upload_memory():
@@ -42,6 +51,8 @@ def upload_memory():
         title = request.form.get('title')
         description = request.form.get('description')
         location = request.form.get('location')
+        latitude = request.form.get('latitude')
+        longitude = request.form.get('longitude')
 
         if not title:
             return jsonify({'error': 'Title is required'}), 400
@@ -56,10 +67,21 @@ def upload_memory():
             return jsonify({'error': 'Failed to upload image to storage'}), 500
 
         try:
+            # Create point geometry if coordinates are provided
+            coordinates = None
+            if latitude and longitude:
+                try:
+                    lat, lng = float(latitude), float(longitude)
+                    point = Point(lng, lat)  # Note: PostGIS expects (longitude, latitude)
+                    coordinates = from_shape(point, srid=4326)
+                except ValueError:
+                    return jsonify({'error': 'Invalid coordinates'}), 400
+
             memory = Memory(
                 title=title,
                 description=description,
                 location=location,
+                coordinates=coordinates,
                 image_url=image_url,
                 s3_key=s3_key
             )

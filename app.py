@@ -2,6 +2,7 @@ import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import text
 
 class Base(DeclarativeBase):
     pass
@@ -21,6 +22,13 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 db.init_app(app)
 
 with app.app_context():
+    # Enable PostGIS
+    db.session.execute(text('CREATE EXTENSION IF NOT EXISTS postgis;'))
+    db.session.commit()
+    
+    # Drop all tables and recreate them
     import models
     import routes
+    
+    db.drop_all()
     db.create_all()
