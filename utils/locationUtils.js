@@ -33,26 +33,30 @@ export const toRadians = (degrees) => {
   };
   
   /**
-   * Filters memories within a specified radius of a center point
-   * @param {Object} data - Data object containing memories array
-   * @param {number} centerLat - Latitude of center point
-   * @param {number} centerLon - Longitude of center point
-   * @param {number} [radiusMeters=180] - Radius in meters
-   * @returns {Object} Filtered data object
-   */
-  export const filterMemoriesByRadius = (data, centerLat, centerLon, radiusMeters = 180) => {
-    const memories = data.memories;
+ * Filters memories that are within a specified distance from a given point
+ * @param {Object[]} memories - Array of memory objects
+ * @param {Object} point - Reference point with latitude and longitude
+ * @param {number} point.latitude - Latitude of the reference point
+ * @param {number} point.longitude - Longitude of the reference point
+ * @param {number} maxDistance - Maximum distance in meters
+ * @returns {Object[]} Filtered array of memories
+ */
+export const filterMemoriesByDistance = (memories, point, maxDistance) => {
+  return memories.filter(memory => {
+    // Extract coordinates from the memory object
+    // const memoryCoords = memory.coordinates.coordinates;
+    const memoryLon = memory.longitude;
+    const memoryLat = memory.latitude;
     
-    return {
-      ...data,
-      memories: memories.filter(memory => {
-        const distance = calculateDistance(
-          centerLat,
-          centerLon,
-          memory.latitude,
-          memory.longitude
-        );
-        return distance <= radiusMeters;
-      })
-    };
-  };
+    // Calculate distance between memory and reference point
+    const distance = calculateDistance(
+      point.latitude,
+      point.longitude,
+      memoryLat,
+      memoryLon
+    );
+    
+    // Return true if memory is within maxDistance
+    return distance <= maxDistance;
+  });
+};

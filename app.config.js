@@ -13,6 +13,7 @@ export default {
       resizeMode: "contain",
       backgroundColor: "#ffffff"
     },
+    assets: ["assets/NoteSmall.png"],
     ios: {
       supportsTablet: true,
       config: {

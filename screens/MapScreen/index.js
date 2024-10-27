@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Dimensions, TouchableOpacity, Text } from 'react-native';
 import MapView, { Polygon, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { filterMemoriesByRadius } from '../../utils/locationUtils';
+import { filterMemoriesByDistance } from '../../utils/locationUtils';
 
 const { width, height } = Dimensions.get('window');
 
@@ -14,10 +14,13 @@ const MapScreen = ( { navigation } ) => {
 
   const fetchNearbyMarkers = async (userLocation) => {
     try {
-      const response = await fetch(`?lat=${userLocation.latitude}&lng=${userLocation.longitude}&radius=${innerRadius}`);
+      const response = await fetch(`https://21d02ac6-47e3-4b9a-ad55-a7209dd1e222-00-3n4ryx0tiyong.picard.replit.dev/api/memories`);
       const data = await response.json();
-      filterMemoriesByRadius(data,userLocation.latitude, userLocation.longitude, innerRadius)
-      setMarkers(data);
+      memories = data["memories"]
+      console.log(memories)
+      filteredMemories = filterMemoriesByDistance(memories, userLocation, innerRadius)
+      console.log(filteredMemories)
+      setMarkers(filteredMemories);
     } catch (error) {
       console.error('Error fetching markers:', error);
     }
@@ -63,23 +66,6 @@ const MapScreen = ( { navigation } ) => {
     ];
   };
 
-  const isWithinRadius = (markerCoords) => {
-    if (!location) return false;
-    
-    const R = 6371e3; // Earth's radius in meters
-    const φ1 = location.latitude * Math.PI / 180;
-    const φ2 = markerCoords.latitude * Math.PI / 180;
-    const Δφ = (markerCoords.latitude - location.latitude) * Math.PI / 180;
-    const Δλ = (markerCoords.longitude - location.longitude) * Math.PI / 180;
-
-    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-            Math.cos(φ1) * Math.cos(φ2) *
-            Math.sin(Δλ/2) * Math.sin(Δλ/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    const distance = R * c;
-
-    return distance <= innerRadius;
-  };
 
   return (
     <View style={styles.container}>
@@ -122,8 +108,8 @@ const MapScreen = ( { navigation } ) => {
               <Marker
                 key={marker.id}
                 coordinate={{
-                  latitude: marker.coordinates.latitude,
-                  longitude: marker.coordinates.longitude
+                  latitude: marker.latitude,
+                  longitude: marker.longitude
                 }}
                 onPress={() => navigation.navigate('ViewNote', { noteId: marker.id })}
               />
