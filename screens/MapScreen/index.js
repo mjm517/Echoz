@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Dimensions, TouchableOpacity, Text } from 'react-native';
 import MapView, { Polygon, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { NavigationContainer } from '@react-navigation/native';
-
+import { filterMemoriesByRadius } from '../../utils/locationUtils';
 
 const { width, height } = Dimensions.get('window');
 
@@ -11,11 +10,13 @@ const MapScreen = ( { navigation } ) => {
   const [location, setLocation] = useState(null);
   const [markers, setMarkers] = useState([]);
   const innerRadius = 180; // Radius in meters for the clear inner circle
-  
+
+
   const fetchNearbyMarkers = async (userLocation) => {
     try {
-      const response = await fetch(`YOUR_API_ENDPOINT?lat=${userLocation.latitude}&lng=${userLocation.longitude}&radius=${innerRadius}`);
+      const response = await fetch(`?lat=${userLocation.latitude}&lng=${userLocation.longitude}&radius=${innerRadius}`);
       const data = await response.json();
+      filterMemoriesByRadius(data,userLocation.latitude, userLocation.longitude, innerRadius)
       setMarkers(data);
     } catch (error) {
       console.error('Error fetching markers:', error);
