@@ -7,7 +7,7 @@ const NoteCard = ({ date, time, imageUrl, address, description }) => {
   return (
 
     <ImageBackground 
-      source={imageSource}
+      source={require('../../assets/NoteSmall.png')}
       style={styles.noteCard}
       imageStyle={{ borderRadius: 0 }} // Adjust the border radius if needed
     >

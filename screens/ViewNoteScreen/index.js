@@ -15,8 +15,8 @@ const ViewNoteScreen = ({ route, navigation }) => {
   const currentMarker = allMarkers[currentIndex];
   
   // Format the date and time
-  const formatDate = (timestamp) => {
-    const date = new Date(timestamp);
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
     return {
       date: date.toLocaleDateString('en-US', { 
         month: 'short', 
@@ -30,7 +30,7 @@ const ViewNoteScreen = ({ route, navigation }) => {
     };
   };
 
-  const { date, time } = formatDate(currentMarker.timestamp);
+  const { date, time } = formatDate(currentMarker.created_at);
 
   return (
     <View style={styles.container}>
@@ -46,8 +46,8 @@ const ViewNoteScreen = ({ route, navigation }) => {
       <NoteCard
         date={date}
         time={time}
-        imageUrl={currentMarker.imageUrl}
-        address={currentMarker.address}
+        imageUrl={currentMarker.image_url}
+        address={currentMarker.location}
         description={currentMarker.description}
       />
 
