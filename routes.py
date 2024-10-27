@@ -42,6 +42,8 @@ def upload_memory():
         title = request.form.get('title')
         description = request.form.get('description')
         location = request.form.get('location')
+        latitude = request.form.get('latitude')
+        longitude = request.form.get('longitude')
 
         if not title:
             return jsonify({'error': 'Title is required'}), 400
@@ -61,7 +63,9 @@ def upload_memory():
                 description=description,
                 location=location,
                 image_url=image_url,
-                s3_key=s3_key
+                s3_key=s3_key,
+                latitude=float(latitude) if latitude else None,
+                longitude=float(longitude) if longitude else None
             )
             
             db.session.add(memory)

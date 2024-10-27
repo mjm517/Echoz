@@ -45,7 +45,8 @@ def upload_file_to_s3(file):
             bucket_name,
             unique_filename,
             ExtraArgs={
-                'ContentType': content_type
+                'ContentType': content_type,
+                'StorageClass': 'STANDARD'
             }
         )
         
