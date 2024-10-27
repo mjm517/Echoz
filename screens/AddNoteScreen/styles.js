@@ -5,7 +5,7 @@ const styles = StyleSheet.create({
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: '#504D5A',
+      backgroundColor: '#504D5A', //trivial commit
     },
     background: {
       position: 'absolute',
