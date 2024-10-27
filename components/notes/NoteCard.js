@@ -1,13 +1,11 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, ImageBackground, Dimensions } from 'react-native';
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+import { View, Text, Image, StyleSheet, ImageBackground } from 'react-native';
 
 const NoteCard = ({ date, time, imageUrl, address, description }) => {
   return (
 
     <ImageBackground 
-      source={imageSource}
+      source={require('../../assets/NoteSmall.png')}
       style={styles.noteCard}
       imageStyle={{ borderRadius: 0 }} // Adjust the border radius if needed
     >
@@ -30,60 +28,74 @@ const NoteCard = ({ date, time, imageUrl, address, description }) => {
 
 const styles = StyleSheet.create({
     noteCard: {
-      width: (SCREEN_WIDTH * .9),
-      height: (SCREEN_HEIGHT * .64),
+      width: 390,
+      height: 600,
       backgroundColor: 'transparent',
       borderRadius: 0,
-      padding: SCREEN_WIDTH * .045,
-      paddingTop: SCREEN_WIDTH * 0.108,
+      padding: 15,
+      paddingTop: 48,
       alignItems: 'flex-start',
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.3,
       shadowRadius: 4,
       position: 'absolute',
-      top: '6%',
+      top: 50,
     },
+    triangleCorner: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        width: 0,
+        height: 0,
+        backgroundColor: 'transparent',
+        borderStyle: 'solid',
+        borderRightWidth: 30, // Adjust to control the size of the triangle
+        borderTopWidth: 30, // Adjust to control the size of the triangle
+        borderRightColor: 'transparent',
+        borderTopColor: '#1E1B22', // Same color as the card background
+        transform: [{ rotate: '90deg' }],
+      },
     dateTimeContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        width: '94%',
+        width: '95%',
         alignSelf: 'center',
       },
     dateText: {
-      fontSize: SCREEN_WIDTH * 0.04,
+      fontSize: 16,
       color: '#666',
       fontStyle: 'italic',
       alignSelf: 'flex-start',
     },
     timeText: {
-      fontSize: SCREEN_WIDTH * 0.04,
+      fontSize: 16,
       color: '#666',
       fontStyle: 'italic',
       alignSelf: 'flex-end',
     },
     image: {
-      width: SCREEN_WIDTH * 0.8, // Scale based on the original width
-      height: SCREEN_WIDTH * 0.68,
+      width: 350,
+      height: 300,
       borderRadius: 8,
-      marginVertical: '2%',
+      marginVertical: 10,
       alignSelf: 'center',
     },
     addressText: {
-      fontSize: SCREEN_WIDTH * 0.05,
+      fontSize: 18,
       fontWeight: 'bold',
-      marginTop: '1%',
-      marginBottom: '-4%',
+      marginTop: 5,
+      marginBottom: -15,
       textAlign: 'left',
-      padding: '2%',
+      padding: 5,
     },
     descriptionText: {
-      fontSize: SCREEN_WIDTH * 0.035,
+      fontSize: 14,
       color: '#333',
-      marginTop: '2%',
+      marginTop: 10,
       textAlign: 'justify',
-      padding: '2%',
-      lineHeight: SCREEN_WIDTH * 0.06,
+      padding: 8,
+      lineHeight: 25,
     },
 });
 
