@@ -1,11 +1,12 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, ImageBackground } from 'react-native';
+import imageSource from '../../assets/NoteSmall.png';
 
 const NoteCard = ({ date, time, imageUrl, address, description }) => {
   return (
 
     <ImageBackground 
-      source={require('../../assets/NoteSmall.png')}
+      source={imageSource}
       style={styles.noteCard}
       imageStyle={{ borderRadius: 0 }} // Adjust the border radius if needed
     >
