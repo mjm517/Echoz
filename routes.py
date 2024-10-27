@@ -43,11 +43,6 @@ def index():
 
     return render_template('index.html', memories=memories)
 
-@app.route('/getdata', methods=['GET'])
-def get_data():
-    memories = Memory.query.all()
-    return jsonify([memory.to_dict() for memory in memories])
-    
 @app.route('/memory/<int:memory_id>')
 def view_memory(memory_id):
     memory = Memory.query.get_or_404(memory_id)
