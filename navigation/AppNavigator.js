@@ -1,41 +1,48 @@
-// navigation/AppNavigator.js
+import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { NavigationContainer } from '@react-navigation/native';
-
+import { useInitialization } from '../contexts/InitializationContext';
+import InitialLoadingScreen from '../screens/InitialLoadingScreen';
+import PermissionScreen from '../screens/PermissionScreen';
 import MapScreen from '../screens/MapScreen';
-import NoteDetailScreen from '../screens/NoteDetailScreen';
-import ShareNoteScreen from '../screens/ShareNoteScreen';
+import ViewNoteScreen from '../screens/ViewNoteScreen';
+import AddNoteScreen from '../screens/AddNoteScreen';
 
 const Stack = createStackNavigator();
 
 export default function AppNavigator() {
+  const { appIsReady, initError, locationPermission } = useInitialization();
+
+  if (!appIsReady) {
+    return <InitialLoadingScreen />;
+  }
+
+  if (locationPermission !== 'granted') {
+    return <PermissionScreen error={initError} />;
+  }
+
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen 
-          name="Map" 
-          component={MapScreen}
-          options={{
-            headerShown: false // Since your map screen appears to be full-screen
-          }}
-        />
-        <Stack.Screen 
-          name="ViewNote" 
-          component={ViewNoteScreen}
-          options={{
-            presentation: 'modal', // Makes it slide up like a modal
-            title: '' // Empty title since your design shows no header
-          }}
-        />
-        <Stack.Screen 
-          name="AddNote" 
-          component={AddNoteScreen}
-          options={{
-            presentation: 'modal',
-            title: ''
-          }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Stack.Navigator>
+      <Stack.Screen 
+        name="Map" 
+        component={MapScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="ViewNote" 
+        component={ViewNoteScreen}
+        options={{
+          presentation: 'modal',
+          title: ''
+        }}
+      />
+      <Stack.Screen 
+        name="AddNote" 
+        component={AddNoteScreen}
+        options={{
+          presentation: 'modal',
+          title: ''
+        }}
+      />
+    </Stack.Navigator>
   );
 }
