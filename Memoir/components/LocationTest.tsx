@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button } from 'react-native';
-import LocationService from './locationService';
+import LocationService from '../components/locationService';
 // import { LocationResult } from './locationService';
 
 type LocationResult = {
