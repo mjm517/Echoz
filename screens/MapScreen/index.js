@@ -1,48 +1,119 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { StyleSheet, View, Dimensions, TouchableOpacity, Text } from 'react-native';
 import MapView, { Polygon, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { filterMemoriesByDistance } from '../../utils/locationUtils';
 
 const { width, height } = Dimensions.get('window');
+const FETCH_INTERVAL = 5 * 1000; // 5 seconds in milliseconds
 
-const MapScreen = ( { navigation } ) => {
+const MapScreen = React.memo(({ navigation }) => {
   const [location, setLocation] = useState(null);
   const [markers, setMarkers] = useState([]);
   const innerRadius = 180; // Radius in meters for the clear inner circle
 
-
-  const fetchNearbyMarkers = async (userLocation) => {
+  // Memoize the fetch function to prevent recreating on every render
+  const fetchNearbyMarkers = useCallback(async (userLocation) => {
     try {
-      const response = await fetch(`https://21d02ac6-47e3-4b9a-ad55-a7209dd1e222-00-3n4ryx0tiyong.picard.replit.dev/api/memories`);
+      const response = await fetch(`https://memory-keeper-tarive22.replit.app/api/memories`);
       const data = await response.json();
-      memories = data["memories"]
-      console.log(memories)
-      filteredMemories = filterMemoriesByDistance(memories, userLocation, innerRadius)
-      console.log(filteredMemories)
+      const memories = data["memories"];
+      const filteredMemories = filterMemoriesByDistance(memories, userLocation, innerRadius);
       setMarkers(filteredMemories);
     } catch (error) {
       console.error('Error fetching markers:', error);
     }
-  };
+  }, [innerRadius]);
+
+  // Set up location tracking
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.error('Permission to access location was denied');
-        return;
+    let isMounted = true;
+
+    const setupLocation = async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          console.error('Permission to access location was denied');
+          return;
+        }
+
+        const currentLocation = await Location.getCurrentPositionAsync({});
+        if (isMounted) {
+          setLocation(currentLocation.coords);
+        }
+      } catch (error) {
+        console.error('Error getting location:', error);
       }
+    };
 
-      let currentLocation = await Location.getCurrentPositionAsync({});
-      setLocation(currentLocation.coords);
+    setupLocation();
 
+    // Set up location watching
+    let locationSubscription;
+    const watchLocation = async () => {
+      locationSubscription = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          timeInterval: 1000,
+          distanceInterval: 1
+        },
+        (newLocation) => {
+          if (isMounted) {
+            setLocation(newLocation.coords);
+          }
+        }
+      );
+    };
+
+    watchLocation();
+
+    return () => {
+      isMounted = false;
+      if (locationSubscription) {
+        locationSubscription.remove();
+      }
+    };
+  }, []);
+
+  // Set up periodic marker fetching
+  useEffect(() => {
+    let intervalId;
+    console.log("fetching markers");
+    const startFetching = async () => {
       if (location) {
-        fetchNearbyMarkers(location);
+        await fetchNearbyMarkers(location); // Initial fetch
+        
+        // Set up interval for subsequent fetches
+        intervalId = setInterval(async () => {
+          await fetchNearbyMarkers(location);
+        }, FETCH_INTERVAL);
       }
-    })();
-  }, [location]);
+    };
 
-  const createCircleCoords = (center, radius, numPoints = 64) => {
+    startFetching();
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [location, fetchNearbyMarkers]); // Only run when location is first set or fetchNearbyMarkers changes
+
+  // Memoize navigation handler to prevent recreating on every render
+  const handleNavigateToAddNote = useCallback(() => {
+    navigation.navigate('AddNote');
+  }, [navigation]);
+
+  // Memoize marker press handler
+  const handleMarkerPress = useCallback((marker) => {
+    navigation.navigate('ViewNote', {
+      allMarkers: markers,
+      initialIndex: markers.findIndex(m => m.id === marker.id)
+    });
+  }, [navigation, markers]);
+
+  // Memoize circle coordinates calculation
+  const createCircleCoords = useCallback((center, radius, numPoints = 64) => {
     const points = [];
     for (let i = 0; i < numPoints; i++) {
       const angle = (i / numPoints) * (2 * Math.PI);
@@ -51,9 +122,10 @@ const MapScreen = ( { navigation } ) => {
       points.push({ latitude, longitude });
     }
     return points;
-  };
+  }, []);
 
-  const createRectangle = (center) => {
+  // Memoize rectangle coordinates calculation
+  const createRectangle = useCallback((center) => {
     const aspectRatio = width / height;
     const latDelta = 0.0922;
     const lngDelta = latDelta * aspectRatio;
@@ -64,65 +136,75 @@ const MapScreen = ( { navigation } ) => {
       { latitude: center.latitude + latDelta, longitude: center.longitude + lngDelta },
       { latitude: center.latitude + latDelta, longitude: center.longitude - lngDelta },
     ];
-  };
+  }, []);
 
+  // Memoize initial region calculation
+  const initialRegion = useMemo(() => location ? {
+    latitude: location.latitude,
+    longitude: location.longitude,
+    latitudeDelta: 0.0096,
+    longitudeDelta: 0.0044,
+  } : null, [location]);
+
+  // Memoize polygon coordinates
+  const polygonCoordinates = useMemo(() => 
+    location ? createRectangle(location) : [], 
+    [location, createRectangle]
+  );
+
+  const polygonHoles = useMemo(() => 
+    location ? [createCircleCoords(location, innerRadius)] : [], 
+    [location, innerRadius, createCircleCoords]
+  );
+
+  if (!location) {
+    return null; // or a loading component
+  }
 
   return (
     <View style={styles.container}>
-      {location && (
-        <MapView
-          style={styles.map}
-          mapType='satellite'
-          showsPointsOfInterest={false}
-          zoomEnabled={false}
-          scrollEnabled={false}
-          loadingEnabled={true}
-          showsUserLocation={true}
-          followsUserLocation={true}
-          initialRegion={{
-            latitude: location.latitude,
-            longitude: location.longitude,
-            latitudeDelta: 0.0096,
-            longitudeDelta: 0.0044,
-          }}
-
-          // iphone zoom
-          cameraZoomRange={{
-            minCenterCoordinateDistance: 1500 ,
-            maxCenterCoordinateDistance: 1500
-          }}
-          // android zoom
-          minZoomLevel={17}
-          maxZoomLevel={17}
-        >
-          <Polygon
-            coordinates={createRectangle(location)}
-            holes={[createCircleCoords(location, innerRadius)]}
-            fillColor="rgba(0, 0, 0, 0.5)"
-            strokeColor="rgba(255, 255, 255, 0.9)"
-            strokeWidth={1}
+      <MapView
+        style={styles.map}
+        mapType='satellite'
+        showsPointsOfInterest={false}
+        zoomEnabled={false}
+        scrollEnabled={false}
+        loadingEnabled={true}
+        showsUserLocation={true}
+        followsUserLocation={true}
+        initialRegion={initialRegion}
+        cameraZoomRange={{
+          minCenterCoordinateDistance: 1500,
+          maxCenterCoordinateDistance: 1500
+        }}
+        minZoomLevel={17}
+        maxZoomLevel={17}
+      >
+        <Polygon
+          coordinates={polygonCoordinates}
+          holes={polygonHoles}
+          fillColor="rgba(0, 0, 0, 0.5)"
+          strokeColor="rgba(255, 255, 255, 0.9)"
+          strokeWidth={1}
+        />
+        
+        {markers.map((marker) => (
+          <Marker
+            key={marker.id}
+            coordinate={{
+              latitude: marker.latitude,
+              longitude: marker.longitude
+            }}
+            onPress={() => handleMarkerPress(marker)}
           />
-          
-          {markers.map((marker) => (
-            (
-              <Marker
-                key={marker.id}
-                coordinate={{
-                  latitude: marker.latitude,
-                  longitude: marker.longitude
-                }}
-                onPress={() => navigation.navigate('ViewNote', { noteId: marker.id })}
-              />
-            )
-          ))}
-        </MapView>
-      )}
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AddNote')}>
+        ))}
+      </MapView>
+      <TouchableOpacity style={styles.button} onPress={handleNavigateToAddNote}>
         <Text style={styles.buttonText}>+</Text>
       </TouchableOpacity>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
