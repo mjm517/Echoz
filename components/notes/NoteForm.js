@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Image, StyleSheet, TouchableOpacity, ImageBackground, Button } from 'react-native';
+import { View, Text, TextInput, Image, StyleSheet, TouchableOpacity, ImageBackground, Button, Dimensions } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Keyboard } from 'react-native';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const NoteForm = ({ initialDate, initialTime, initialAddress, initialDescription }) => {
     const [date] = useState(initialDate);
@@ -93,17 +95,17 @@ const NoteForm = ({ initialDate, initialTime, initialAddress, initialDescription
 
     const styles = StyleSheet.create({
         noteCard: {
-          width: 390,
-          height: 600,
+          width: (SCREEN_WIDTH * .9),
+          height: (SCREEN_HEIGHT * .64),
           backgroundColor: 'transparent',
-          padding: 15,
-          paddingTop: 48,
+          padding: SCREEN_WIDTH * .045,
+          paddingTop: SCREEN_WIDTH * 0.108,
           alignItems: 'center',
           shadowColor: '#000',
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.3,
           shadowRadius: 4,
-          marginBottom: 100,
+          marginBottom: '25%',
         },
         dateTimeContainer: {
           flexDirection: 'row',
@@ -111,27 +113,27 @@ const NoteForm = ({ initialDate, initialTime, initialAddress, initialDescription
           width: '95%',
         },
         dateText: {
-          fontSize: 16,
+          fontSize: SCREEN_WIDTH * 0.04,
           color: '#666',
           fontStyle: 'italic',
         },
         timeText: {
-          fontSize: 16,
+          fontSize: SCREEN_WIDTH * 0.04,
           color: '#666',
           fontStyle: 'italic',
         },
         imagePlaceholder: {
-          width: 350,
-          height: 300,
+          width: SCREEN_WIDTH * 0.8, // Scale based on the original width
+          height: SCREEN_WIDTH * 0.68,
           backgroundColor: '#B9A86A', // Light yellow background
           justifyContent: 'center',
           alignItems: 'center',
-          marginVertical: 10,
+          marginVertical: '2%',
           borderRadius: 8,
-          marginTop: 10,
+          marginTop: '1%',
         },
         addImageText: {
-          fontSize: 140,
+          fontSize: SCREEN_WIDTH * 0.4,
           color: '#FFF1C0',
         },
         image: {
@@ -140,38 +142,25 @@ const NoteForm = ({ initialDate, initialTime, initialAddress, initialDescription
           borderRadius: 8,
         },
         titleInput: {
-          fontSize: 20,
+          fontSize: SCREEN_WIDTH * 0.05,
           fontWeight: 'bold',
-          width: '96%',
+          width: '98%',
           textAlign: 'left',
-          marginBottom: 10,
+          marginBottom: '3%',
           backgroundColor: '#E6D493',
-          padding: 8,
+          padding: '2.5%',
           borderRadius: 8,
         },
         descriptionInput: {
-          fontSize: 14,
+          fontSize: SCREEN_WIDTH * 0.035,
           color: '#333',
           textAlign: 'justify',
-          width: '96%',
+          width: '98%',
           lineHeight: 25,
-          height: 150,
+          height: '28%',
           borderRadius: 8,
-          padding: 10,
+          padding: '2.5%',
           backgroundColor: '#E6D493',
-        },
-        shareButton: {
-          backgroundColor: '#4284FF',
-          borderRadius: 10,
-          width: 250,
-          height: 50,
-          justifyContent: 'center',
-          alignItems: 'center',
-          marginTop: 20,
-        },
-        shareButtonText: {
-          fontSize: 20,
-          color: '#fff',
         },
       });
       
