@@ -21,7 +21,19 @@
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "android": {
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyAts_yyM0YsAnLjNYmhoPOJuSitYc8J1ig"
+        }
+      }
+    },
+    "ios": {
+      "config": {
+        "googleMapsApiKey": "AIzaSyAts_yyM0YsAnLjNYmhoPOJuSitYc8J1ig"
+      }
+    }
     }
   }
 }
