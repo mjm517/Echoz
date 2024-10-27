@@ -21,6 +21,7 @@ const ViewNoteScreen = ({ navigation }) => {
         date="Oct. 26th, 2024"
         time="03:46PM"
         imageUrl="https://upload.wikimedia.org/wikipedia/commons/9/9e/Ours_brun_parcanimalierpyrenees_1.jpg"
+        acceesibilityLabel = {`${address} ${description}`}
         address="17803 La Cantera Terrace"
         description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip."
     />
