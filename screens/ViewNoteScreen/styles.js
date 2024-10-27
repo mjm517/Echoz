@@ -1,4 +1,6 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
     container: {
@@ -16,21 +18,21 @@ const styles = StyleSheet.create({
     },
     stackedShadow: {
       position: 'absolute',
-      width: 390,
-      height: 500,
+      width: SCREEN_WIDTH * .9, // Scale based on the original width
+      height: SCREEN_HEIGHT * 0.53,
       backgroundColor: '#D4C079',
       borderRadius: 0,
     },
     stackedShadow2: {
       position: 'absolute',
-      width: 390,
-      height: 530,
+      width: SCREEN_WIDTH * 0.9, // Scale based on the original width
+      height: SCREEN_HEIGHT * 0.57,
       backgroundColor: '#8F7F46',
       borderRadius: 0,
     },
     backButtonContainer: {
       position: 'absolute',
-      bottom: 50, // Adjust this value as needed for your layout
+      bottom: '5.5%', // Adjust this value as needed for your layout
       left: 0,
       right: 0,
       alignItems: 'center',
@@ -41,8 +43,8 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       backgroundColor: '#4284FF',
       borderRadius: 10,
-      width: 250,
-      height: 70,
+      width: '55%',
+      height: '110%',
       elevation: 5,
     },
     backButtonText: {
