@@ -5,6 +5,8 @@ from geoalchemy2.shape import to_shape
 from shapely.geometry import Point
 
 class Memory(db.Model):
+    __table_args__ = {'extend_existing': True}
+    
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
@@ -14,7 +16,7 @@ class Memory(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     latitude = db.Column(db.Numeric(9,6), nullable=True)
     longitude = db.Column(db.Numeric(9,6), nullable=True)
-    coordinates = db.Column(Geometry('POINT', srid=4326))
+    coordinates = db.Column(Geometry('POINT', srid=4326, spatial_index=True))
     
     def to_dict(self):
         coordinates_shape = to_shape(self.coordinates) if self.coordinates else None

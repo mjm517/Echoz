@@ -43,6 +43,15 @@ def index():
 
     return render_template('index.html', memories=memories)
 
+@app.route('/api/memory/<int:memory_id>', methods=['GET'])
+def get_memory(memory_id):
+    try:
+        memory = Memory.query.get_or_404(memory_id)
+        return jsonify(memory.to_dict()), 200
+    except Exception as e:
+        logger.error(f"Error retrieving memory: {str(e)}")
+        return jsonify({'error': 'Memory not found'}), 404
+
 @app.route('/memory/<int:memory_id>')
 def view_memory(memory_id):
     memory = Memory.query.get_or_404(memory_id)
