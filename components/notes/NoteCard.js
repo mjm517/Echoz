@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, ImageBackground } from 'react-native';
+import { View, Text, Image, StyleSheet, ImageBackground, Dimensions } from 'react-native';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const NoteCard = ({ date, time, imageUrl, address, description }) => {
   return (
@@ -28,74 +30,60 @@ const NoteCard = ({ date, time, imageUrl, address, description }) => {
 
 const styles = StyleSheet.create({
     noteCard: {
-      width: 390,
-      height: 600,
+      width: (SCREEN_WIDTH * .9),
+      height: (SCREEN_HEIGHT * .64),
       backgroundColor: 'transparent',
       borderRadius: 0,
-      padding: 15,
-      paddingTop: 48,
+      padding: SCREEN_WIDTH * .045,
+      paddingTop: SCREEN_WIDTH * 0.108,
       alignItems: 'flex-start',
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.3,
       shadowRadius: 4,
       position: 'absolute',
-      top: 50,
+      top: '6%',
     },
-    triangleCorner: {
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        width: 0,
-        height: 0,
-        backgroundColor: 'transparent',
-        borderStyle: 'solid',
-        borderRightWidth: 30, // Adjust to control the size of the triangle
-        borderTopWidth: 30, // Adjust to control the size of the triangle
-        borderRightColor: 'transparent',
-        borderTopColor: '#1E1B22', // Same color as the card background
-        transform: [{ rotate: '90deg' }],
-      },
     dateTimeContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        width: '95%',
+        width: '94%',
         alignSelf: 'center',
       },
     dateText: {
-      fontSize: 16,
+      fontSize: SCREEN_WIDTH * 0.04,
       color: '#666',
       fontStyle: 'italic',
       alignSelf: 'flex-start',
     },
     timeText: {
-      fontSize: 16,
+      fontSize: SCREEN_WIDTH * 0.04,
       color: '#666',
       fontStyle: 'italic',
       alignSelf: 'flex-end',
     },
     image: {
-      width: 350,
-      height: 300,
+      width: SCREEN_WIDTH * 0.8, // Scale based on the original width
+      height: SCREEN_WIDTH * 0.68,
       borderRadius: 8,
-      marginVertical: 10,
+      marginVertical: '2%',
       alignSelf: 'center',
     },
     addressText: {
-      fontSize: 18,
+      fontSize: SCREEN_WIDTH * 0.05,
       fontWeight: 'bold',
-      marginTop: 5,
-      marginBottom: -15,
+      marginTop: '1%',
+      marginBottom: '-4%',
       textAlign: 'left',
-      padding: 5,
+      padding: '2%',
     },
     descriptionText: {
-      fontSize: 14,
+      fontSize: SCREEN_WIDTH * 0.035,
       color: '#333',
-      marginTop: 10,
+      marginTop: '2%',
       textAlign: 'justify',
-      padding: 8,
-      lineHeight: 25,
+      padding: '2%',
+      lineHeight: SCREEN_WIDTH * 0.06,
     },
 });
 

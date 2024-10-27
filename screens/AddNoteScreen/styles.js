@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
     },
     backButtonContainer: {
       position: 'absolute',
-      bottom: 50, // Adjust this value as needed for your layout
+      bottom: '9.5%', // Adjust this value as needed for your layout
       left: 0,
       right: 0,
       alignItems: 'center',
@@ -27,8 +27,8 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       backgroundColor: '#4284FF',
       borderRadius: 10,
-      width: 250,
-      height: 90,
+      width: '55%',
+      height: '200%',
       elevation: 5,
     },
     backButtonText: {
