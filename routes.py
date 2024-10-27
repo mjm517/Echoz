@@ -5,6 +5,9 @@ from models import Memory
 from utils import upload_file_to_s3
 from werkzeug.exceptions import RequestEntityTooLarge
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import func
+from geoalchemy2.shape import from_shape
+from shapely.geometry import Point
 import traceback
 
 # Configure logging
@@ -13,15 +16,31 @@ logger = logging.getLogger(__name__)
 
 @app.route('/')
 def index():
-    memories = Memory.query.order_by(Memory.created_at.desc()).all()
-    # Add debug logging
-    for memory in memories:
-        logger.info(f"Memory ID: {memory.id}")
-        logger.info(f"Title: {memory.title}")
-        logger.info(f"Description: {memory.description}")
-        logger.info(f"Image URL: {memory.image_url}")
-        logger.info(f"S3 Key: {memory.s3_key}")
-        logger.info("------------------------")
+    # Get search parameters
+    search_lat = request.args.get('lat', type=float)
+    search_lng = request.args.get('lng', type=float)
+    radius = request.args.get('radius', 10.0, type=float)  # Default 10km radius
+
+    if search_lat is not None and search_lng is not None:
+        # Search memories within radius km of the specified point
+        point = Point(search_lng, search_lat)
+        search_point = from_shape(point, srid=4326)
+        
+        memories = Memory.query.filter(
+            func.ST_DWithin(
+                func.ST_Transform(Memory.coordinates, 3857),
+                func.ST_Transform(search_point, 3857),
+                radius * 1000  # Convert km to meters
+            )
+        ).order_by(
+            func.ST_Distance(
+                func.ST_Transform(Memory.coordinates, 3857),
+                func.ST_Transform(search_point, 3857)
+            )
+        ).all()
+    else:
+        memories = Memory.query.order_by(Memory.created_at.desc()).all()
+
     return render_template('index.html', memories=memories)
 
 @app.route('/memory/<int:memory_id>')
@@ -58,6 +77,12 @@ def upload_memory():
             return jsonify({'error': 'Failed to upload image to storage'}), 500
 
         try:
+            # Create Point geometry if coordinates are provided
+            coordinates = None
+            if latitude and longitude:
+                point = Point(float(longitude), float(latitude))
+                coordinates = from_shape(point, srid=4326)
+
             memory = Memory(
                 title=title,
                 description=description,
@@ -65,7 +90,8 @@ def upload_memory():
                 image_url=image_url,
                 s3_key=s3_key,
                 latitude=float(latitude) if latitude else None,
-                longitude=float(longitude) if longitude else None
+                longitude=float(longitude) if longitude else None,
+                coordinates=coordinates
             )
             
             db.session.add(memory)
@@ -85,6 +111,40 @@ def upload_memory():
     except Exception as e:
         logger.error(f"Unexpected error in upload_memory: {str(e)}\n{traceback.format_exc()}")
         return jsonify({'error': 'An unexpected error occurred'}), 500
+
+@app.route('/search')
+def search_memories():
+    try:
+        lat = request.args.get('lat', type=float)
+        lng = request.args.get('lng', type=float)
+        radius = request.args.get('radius', 10.0, type=float)  # Default 10km radius
+
+        if not lat or not lng:
+            return jsonify({'error': 'Latitude and longitude are required'}), 400
+
+        # Create search point
+        point = Point(lng, lat)
+        search_point = from_shape(point, srid=4326)
+
+        # Find memories within radius
+        memories = Memory.query.filter(
+            func.ST_DWithin(
+                func.ST_Transform(Memory.coordinates, 3857),
+                func.ST_Transform(search_point, 3857),
+                radius * 1000  # Convert km to meters
+            )
+        ).order_by(
+            func.ST_Distance(
+                func.ST_Transform(Memory.coordinates, 3857),
+                func.ST_Transform(search_point, 3857)
+            )
+        ).all()
+
+        return jsonify({'memories': [memory.to_dict() for memory in memories]})
+
+    except Exception as e:
+        logger.error(f"Search error: {str(e)}\n{traceback.format_exc()}")
+        return jsonify({'error': 'An error occurred during search'}), 500
 
 @app.errorhandler(404)
 def not_found_error(error):

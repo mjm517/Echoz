@@ -1,7 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     const uploadForm = document.getElementById('uploadForm');
+    const searchForm = document.getElementById('searchForm');
+    
     if (uploadForm) {
         uploadForm.addEventListener('submit', handleUpload);
+    }
+    
+    if (searchForm) {
+        searchForm.addEventListener('submit', handleSearch);
     }
 });
 
@@ -29,4 +35,11 @@ async function handleUpload(e) {
     } catch (error) {
         alert(error.message);
     }
+}
+
+async function handleSearch(e) {
+    e.preventDefault();
+    
+    const searchParams = new URLSearchParams(new FormData(e.target));
+    window.location.href = `/?${searchParams.toString()}`;
 }
