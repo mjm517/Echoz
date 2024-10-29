@@ -1,0 +1,5 @@
+.env
+.replit
+replit.nix
+config.json
+uv.lock
