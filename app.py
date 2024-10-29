@@ -26,5 +26,5 @@ db.init_app(app)
 with app.app_context():
     import models
     import routes
-    db.drop_all()  # Drop existing tables
+      # Drop existing tables
     db.create_all()  # Create tables with new schema

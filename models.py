@@ -15,6 +15,7 @@ class Memory(db.Model):
     latitude = db.Column(db.Numeric(9,6), nullable=True)
     longitude = db.Column(db.Numeric(9,6), nullable=True)
     coordinates = db.Column(Geometry('POINT', srid=4326))
+    ada_metadata= db.Column(db.String(200), nullable=False)
     
     def to_dict(self):
         coordinates_shape = to_shape(self.coordinates) if self.coordinates else None
@@ -30,5 +31,8 @@ class Memory(db.Model):
             'coordinates': {
                 'type': 'Point',
                 'coordinates': [coordinates_shape.x, coordinates_shape.y]
-            } if coordinates_shape else None
+            } if coordinates_shape else None,
+            'ada_metadata': self.ada_metadata,
         }
+
+
