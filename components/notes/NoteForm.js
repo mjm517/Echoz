@@ -1,86 +1,75 @@
-// NoteForm.js
-import React, { forwardRef, useImperativeHandle, useState } from 'react';
-import { View, Text, TextInput, Image, StyleSheet, TouchableOpacity, ImageBackground, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, Image, StyleSheet, TouchableOpacity, ImageBackground, Button, Dimensions } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Keyboard } from 'react-native';
-import * as FileSystem from 'expo-file-system';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const NoteForm = forwardRef((props, ref) => {
-    const { initialDate, initialTime, initialAddress, initialDescription } = props;
-    
+const NoteForm = ({ initialDate, initialTime, initialAddress, initialDescription }) => {
     const [date] = useState(initialDate);
     const [time] = useState(initialTime);
     const [title, setTitle] = useState(initialAddress);
     const [description, setDescription] = useState(initialDescription);
     const [imageUri, setImageUri] = useState(null);
-    const [imageBase64, setImageBase64] = useState(null);
   
-    useImperativeHandle(ref, () => ({
-      getFormData: async () => {
-        let base64Image = imageBase64;
-        
-        // If we have an image URI but no base64 data, convert it
-        if (imageUri && !base64Image) {
-          try {
-            const base64 = await FileSystem.readAsStringAsync(imageUri, {
-              encoding: FileSystem.EncodingType.Base64,
-            });
-            base64Image = base64;
-          } catch (error) {
-            console.error('Error converting image to base64:', error);
-          }
-        }
-
-        return {
-          title,
-          description,
-          image: base64Image ? `data:image/jpeg;base64,${base64Image}` : null
-        };
-      }
-    }));
-
     const pickImage = async () => {
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [350, 300],
         quality: 1,
-        base64: true,
       });
   
       if (!result.canceled) {
         setImageUri(result.assets[0].uri);
-        setImageBase64(result.assets[0].base64);
       }
     };
+
     const handleKeyPress = ({ nativeEvent }) => {
         if (nativeEvent.key === 'Enter') {
           Keyboard.dismiss();
         }
-    };
+      };
 
     return (
         <ImageBackground
-            source={require('../../assets/NoteSmall.png')}
+            source={require('../../assets/NoteSmall.png')} // Background image for the card
             style={styles.noteCard}
             imageStyle={{ borderRadius: 0 }}
         >
+
           <View style={styles.dateTimeContainer}>
             <Text style={styles.dateText}>{date}</Text>
             <Text style={styles.timeText}>{time}</Text>
           </View>
     
-          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          {/* <TouchableOpacity onPress={pickImage} style={styles.imagePlaceholder}>
+            {imageUri ? (
+              <Image source={{ uri: imageUri }} style={styles.image} />
+            ) : (
+              <Text style={styles.addImageText}>+</Text>
+            )}
+          </TouchableOpacity> */}
+
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+
             <TouchableOpacity onPress={pickImage} style={styles.imagePlaceholder}>
-              {imageUri ? (
+            {imageUri ? (
                 <Image source={{ uri: imageUri }} style={styles.image} />
-              ) : (
+                ) : (
                 <Text style={styles.addImageText}>+</Text>
-              )}
+                )}
             </TouchableOpacity>
-          </View>
+
+                {/* {!imageUri && (
+                    <TouchableOpacity style={styles.imagePlaceholder} onPress={pickImage}>
+                        <Text style={styles.buttonText}>+</Text>
+                    </TouchableOpacity>
+                )}
+                {imageUri && (
+                    <Image source={{ uri: imageUri }} style={{ width: 350, height: 300, marginTop: -30, borderRadius: 8 }} />
+                )} */}
+            </View>
         
           <TextInput
             style={styles.titleInput}
@@ -101,8 +90,9 @@ const NoteForm = forwardRef((props, ref) => {
             returnKeyType="done"
           />
         </ImageBackground>
-    );
-});
+      );
+    };
+
     const styles = StyleSheet.create({
         noteCard: {
           width: (SCREEN_WIDTH * .9),
